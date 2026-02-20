@@ -1,0 +1,123 @@
+# Personal Hub Template - Project Plan
+
+## Architecture
+
+```
+personal-hub/
+├── api/                    # FastAPI backend
+│   ├── main.py
+│   ├── collectors/         # Data collectors (modular)
+│   │   ├── whoop.py       # Optional: Whoop integration
+│   │   ├── apple_health.py # Optional: Apple Health webhook
+│   │   ├── withings.py    # Optional: Withings API
+│   │   └── slack.py       # Optional: Slack integration
+│   ├── routers/           # API routes
+│   └── models/            # Database models
+├── web/                   # Next.js 15 frontend
+│   ├── src/
+│   │   ├── app/          # App router
+│   │   ├── components/   # React components
+│   │   └── lib/          # Utilities
+│   └── public/
+├── docker/
+│   ├── docker-compose.yml
+│   ├── Dockerfile.api
+│   └── Dockerfile.web
+├── scripts/
+│   ├── init.sh           # Initial setup
+│   ├── dev.sh            # Development mode
+│   └── deploy.sh         # Production deployment
+├── docs/
+│   ├── SETUP.md
+│   ├── CONFIGURATION.md
+│   ├── DATA_SOURCES.md
+│   └── DEPLOYMENT.md
+└── .env.template         # Environment variables template
+```
+
+## Key Features
+
+1. **Modular Data Sources**
+   - Health: Whoop, Apple Health, Withings
+   - Communication: Slack, Telegram
+   - Calendar: Google Calendar
+   - Each optional, enable via env vars
+
+2. **Authentication**
+   - Auth.js v5 (Google OAuth)
+   - Configurable providers
+   - Session management
+
+3. **Database**
+   - PostgreSQL (Docker)
+   - Migrations with Alembic
+   - Optional: SQLite for development
+
+4. **Deployment**
+   - Docker Compose (one-command deploy)
+   - Cloudflare Tunnel (optional)
+   - systemd services (optional)
+   - Reverse proxy ready
+
+5. **Secrets Management**
+   - Environment variables
+   - Optional: 1Password integration
+   - Docker secrets support
+
+## Generalization Tasks
+
+### Remove Personal Info
+- [ ] Remove Ryan's 1Password references
+- [ ] Remove hardcoded user IDs
+- [ ] Remove specific Telegram/Slack group IDs
+- [ ] Make all API keys configurable
+
+### Make Optional
+- [ ] All data collectors (enable via env)
+- [ ] Cloudflare Tunnel (alternative: nginx)
+- [ ] 1Password CLI (use plain env vars)
+- [ ] Specific OAuth providers
+
+### Add Configuration
+- [ ] .env.template with all options
+- [ ] Feature flags for data sources
+- [ ] Database migrations
+- [ ] Initial admin user setup
+
+### Documentation
+- [ ] Quick start guide
+- [ ] Each data source setup guide
+- [ ] Deployment options
+- [ ] Troubleshooting
+
+## Development Phases
+
+### Phase 1: Core Structure
+- Monorepo setup
+- Docker Compose base
+- Database setup
+- Auth skeleton
+
+### Phase 2: API Generalization
+- Extract collectors to modules
+- Make each optional
+- Add feature flags
+- Health endpoint
+
+### Phase 3: Frontend Template
+- Remove personal data
+- Generic dashboard
+- Configurable widgets
+- Theme system
+
+### Phase 4: Deployment
+- Docker production build
+- Init scripts
+- Migration tools
+- Backup/restore
+
+### Phase 5: Documentation
+- Complete setup guide
+- Video tutorial
+- Example configurations
+- Community templates

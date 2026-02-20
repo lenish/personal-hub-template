@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # Database
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: personal-hub-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # API (FastAPI Backend)
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: personal-hub-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - TZ=${TZ:-UTC}
+      # Data source toggles
+      - ENABLE_WHOOP=${ENABLE_WHOOP:-false}
+      - ENABLE_APPLE_HEALTH=${ENABLE_APPLE_HEALTH:-false}
+      - ENABLE_WITHINGS=${ENABLE_WITHINGS:-false}
+      - ENABLE_SLACK=${ENABLE_SLACK:-false}
+      - ENABLE_TELEGRAM=${ENABLE_TELEGRAM:-false}
+      - ENABLE_GOOGLE_CALENDAR=${ENABLE_GOOGLE_CALENDAR:-false}
+      # API keys (only needed if enabled)
+      - WHOOP_CLIENT_ID=${WHOOP_CLIENT_ID:-}
+      - WHOOP_CLIENT_SECRET=${WHOOP_CLIENT_SECRET:-}
+      - WITHINGS_CLIENT_ID=${WITHINGS_CLIENT_ID:-}
+      - WITHINGS_CLIENT_SECRET=${WITHINGS_CLIENT_SECRET:-}
+      - APPLE_HEALTH_WEBHOOK_TOKEN=${APPLE_HEALTH_WEBHOOK_TOKEN:-}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      # Sync intervals
+      - WHOOP_SYNC_INTERVAL=${WHOOP_SYNC_INTERVAL:-5}
+      - WITHINGS_SYNC_INTERVAL=${WITHINGS_SYNC_INTERVAL:-5}
+      - SLACK_SYNC_INTERVAL=${SLACK_SYNC_INTERVAL:-10}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ../api:/app
+      - api_cache:/app/.cache
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # Web (Next.js Frontend)
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+      args:
+        - NODE_ENV=${NODE_ENV:-production}
+    container_name: personal-hub-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - API_BASE_URL=${API_BASE_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      - ../web:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run start
+
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # Cloudflare Tunnel (Optional)
+  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: personal-hub-tunnel
+    restart: unless-stopped
+    profiles:
+      - cloudflare
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+    driver: local
+  api_cache:
+    driver: local
+
+networks:
+  default:
+    name: personal-hub-network
