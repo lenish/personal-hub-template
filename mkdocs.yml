@@ -1,7 +1,7 @@
 site_name: Personal Hub Template
-site_url: https://docs.ryankim.link
+site_url: https://yourdomain.com
 site_description: Self-hosted personal data hub - Documentation
-repo_url: https://github.com/yourusername/personal-hub-template
+repo_url: https://github.com/lenish/personal-hub-template
 edit_uri: edit/main/docs/
 
 theme:
