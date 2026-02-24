@@ -11,6 +11,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from api.config import settings
+from api.routers import collectors, health, system
+from api.services.sync import start_scheduler, stop_scheduler
 
 # Configure logging
 logging.basicConfig(
@@ -28,11 +30,16 @@ _PUBLIC_PATHS = frozenset({
     "/docs",
     "/openapi.json",
     "/api/status",
-    # Add OAuth callback paths
+    # Health OAuth callbacks + webhook
+    "/api/health/webhook",
+    "/api/health/whoop/authorize",
     "/api/health/whoop/callback",
     "/api/health/withings/callback",
-    # Add webhook paths
-    "/api/health/webhook",
+    # Collector OAuth callbacks
+    "/api/collectors/google/authorize",
+    "/api/collectors/google/callback",
+    "/api/collectors/spotify/authorize",
+    "/api/collectors/spotify/callback",
 })
 
 
@@ -65,16 +72,10 @@ class ApiKeyMiddleware(BaseHTTPMiddleware):
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     logger.info("Starting Personal Data Hub API...")
-
-    # TODO: Start background schedulers for data collection
-    # if settings.enable_whoop:
-    #     from api.collectors.whoop import start_whoop_scheduler
-    #     start_whoop_scheduler()
-
+    start_scheduler()
     yield
-
     logger.info("Shutting down Personal Data Hub API...")
-    # TODO: Stop schedulers
+    stop_scheduler()
 
 
 app = FastAPI(
@@ -95,11 +96,9 @@ app.add_middleware(
 )
 
 # Include routers
-# TODO: Uncomment as you implement routers
-# from api.routers import health, social, system
-# app.include_router(health.router, prefix="/api/health", tags=["Health"])
-# app.include_router(social.router, prefix="/api/social", tags=["Social"])
-# app.include_router(system.router, prefix="/api/system", tags=["System"])
+app.include_router(health.router)
+app.include_router(collectors.router)
+app.include_router(system.router)
 
 
 @app.get("/")

@@ -69,21 +69,33 @@ echo ""
 read -p "Press Enter after editing .env file..."
 
 # Generate secrets if needed
-if grep -q "CHANGE_ME" .env; then
+if grep -q "CHANGE_ME" .env || grep -q "^API_KEY=$" .env; then
     echo ""
     echo "Generating random secrets..."
 
     # Generate AUTH_SECRET
-    AUTH_SECRET=$(openssl rand -base64 32)
-    sed -i.bak "s/AUTH_SECRET=CHANGE_ME_RANDOM_STRING/AUTH_SECRET=$AUTH_SECRET/" .env
+    if grep -q "AUTH_SECRET=CHANGE_ME_RANDOM_STRING" .env; then
+        AUTH_SECRET=$(openssl rand -base64 32)
+        sed -i.bak "s/AUTH_SECRET=CHANGE_ME_RANDOM_STRING/AUTH_SECRET=$AUTH_SECRET/" .env
+    fi
 
     # Generate POSTGRES_PASSWORD
-    PG_PASSWORD=$(openssl rand -base64 16)
-    sed -i.bak "s/POSTGRES_PASSWORD=CHANGE_ME/POSTGRES_PASSWORD=$PG_PASSWORD/" .env
+    if grep -q "POSTGRES_PASSWORD=CHANGE_ME" .env; then
+        PG_PASSWORD=$(openssl rand -base64 16)
+        sed -i.bak "s/POSTGRES_PASSWORD=CHANGE_ME/POSTGRES_PASSWORD=$PG_PASSWORD/" .env
+    fi
 
-    # Generate APPLE_HEALTH_WEBHOOK_TOKEN
-    WEBHOOK_TOKEN=$(openssl rand -base64 32)
-    sed -i.bak "s/APPLE_HEALTH_WEBHOOK_TOKEN=CHANGE_ME_RANDOM_STRING/APPLE_HEALTH_WEBHOOK_TOKEN=$WEBHOOK_TOKEN/" .env
+    # Generate HEALTH_API_TOKEN (Apple Health webhook)
+    if grep -q "HEALTH_API_TOKEN=CHANGE_ME_RANDOM_STRING" .env; then
+        WEBHOOK_TOKEN=$(openssl rand -base64 32)
+        sed -i.bak "s/HEALTH_API_TOKEN=CHANGE_ME_RANDOM_STRING/HEALTH_API_TOKEN=$WEBHOOK_TOKEN/" .env
+    fi
+
+    # Generate API_KEY (internal API authentication)
+    if grep -q "^API_KEY=$" .env || grep -q "^API_KEY=  #" .env; then
+        API_KEY=$(openssl rand -base64 32)
+        sed -i.bak "s|^API_KEY=.*|API_KEY=$API_KEY|" .env
+    fi
 
     rm -f .env.bak
 

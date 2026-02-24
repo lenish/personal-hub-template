@@ -17,7 +17,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
@@ -42,31 +42,45 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - CORS_ORIGINS=${CORS_ORIGINS}
       - TZ=${TZ:-UTC}
+      - TIMEZONE=${TIMEZONE:-UTC}
       # Data source toggles
       - ENABLE_WHOOP=${ENABLE_WHOOP:-false}
       - ENABLE_APPLE_HEALTH=${ENABLE_APPLE_HEALTH:-false}
       - ENABLE_WITHINGS=${ENABLE_WITHINGS:-false}
+      - ENABLE_SPOTIFY=${ENABLE_SPOTIFY:-false}
+      - ENABLE_GOOGLE_CALENDAR=${ENABLE_GOOGLE_CALENDAR:-false}
+      - ENABLE_TLDV=${ENABLE_TLDV:-false}
       - ENABLE_SLACK=${ENABLE_SLACK:-false}
       - ENABLE_TELEGRAM=${ENABLE_TELEGRAM:-false}
-      - ENABLE_GOOGLE_CALENDAR=${ENABLE_GOOGLE_CALENDAR:-false}
-      # API keys (only needed if enabled)
+      # Health integrations
       - WHOOP_CLIENT_ID=${WHOOP_CLIENT_ID:-}
       - WHOOP_CLIENT_SECRET=${WHOOP_CLIENT_SECRET:-}
+      - WHOOP_REDIRECT_URI=${WHOOP_REDIRECT_URI:-}
+      - WHOOP_SYNC_INTERVAL=${WHOOP_SYNC_INTERVAL:-5}
+      - HEALTH_API_TOKEN=${HEALTH_API_TOKEN:-}
       - WITHINGS_CLIENT_ID=${WITHINGS_CLIENT_ID:-}
       - WITHINGS_CLIENT_SECRET=${WITHINGS_CLIENT_SECRET:-}
-      - APPLE_HEALTH_WEBHOOK_TOKEN=${APPLE_HEALTH_WEBHOOK_TOKEN:-}
+      - WITHINGS_REDIRECT_URI=${WITHINGS_REDIRECT_URI:-}
+      - WITHINGS_SYNC_INTERVAL=${WITHINGS_SYNC_INTERVAL:-5}
+      # Spotify integration
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID:-}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET:-}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-}
+      - SPOTIFY_SYNC_INTERVAL=${SPOTIFY_SYNC_INTERVAL:-10}
+      # Google Calendar integration
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-}
+      - GOOGLE_SYNC_INTERVAL=${GOOGLE_SYNC_INTERVAL:-15}
+      # tldv (meeting recordings)
+      - TLDV_API_KEY=${TLDV_API_KEY:-}
+      - TLDV_SYNC_INTERVAL=${TLDV_SYNC_INTERVAL:-30}
+      # Legacy (deprecated in template)
       - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN:-}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
-      # Sync intervals
-      - WHOOP_SYNC_INTERVAL=${WHOOP_SYNC_INTERVAL:-5}
-      - WITHINGS_SYNC_INTERVAL=${WITHINGS_SYNC_INTERVAL:-5}
-      - SLACK_SYNC_INTERVAL=${SLACK_SYNC_INTERVAL:-10}
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${API_PORT:-8001}:8000"
     volumes:
-      - ../api:/app
       - api_cache:/app/.cache
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    # command: use Dockerfile CMD (uvicorn api.main:app)
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -90,17 +104,15 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - API_BASE_URL=${API_BASE_URL}
+      - API_KEY=${API_KEY}
+      - ALLOWED_EMAIL=${ALLOWED_EMAIL}
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
     ports:
-      - "${WEB_PORT:-3000}:3000"
-    volumes:
-      - ../web:/app
-      - /app/node_modules
-      - /app/.next
-    command: npm run start
+      - "${WEB_PORT:-3001}:3000"
+    # command: use Dockerfile CMD (node server.js)
 
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   # Cloudflare Tunnel (Optional)

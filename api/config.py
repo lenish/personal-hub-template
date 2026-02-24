@@ -1,6 +1,5 @@
 """Application configuration using environment variables."""
 
-import os
 from pydantic_settings import BaseSettings
 
 
@@ -15,6 +14,9 @@ class Settings(BaseSettings):
     environment: str = "production"
     log_level: str = "INFO"
 
+    # Timezone (IANA format, e.g. "America/New_York", "Asia/Seoul")
+    timezone: str = "UTC"
+
     # Database (PostgreSQL)
     database_url: str = "postgresql+asyncpg://hub_user:password@localhost:5432/personal_hub"
 
@@ -23,6 +25,7 @@ class Settings(BaseSettings):
 
     # API Authentication
     api_key: str = ""  # If empty, auth is disabled (dev mode)
+    health_api_token: str = ""  # Token for Apple Health webhook authentication
 
     # CORS
     cors_origins: str = "http://localhost:3000"  # Comma-separated list
@@ -44,6 +47,7 @@ class Settings(BaseSettings):
     enable_google_calendar: bool = False
     enable_spotify: bool = False
     enable_notion: bool = False
+    enable_tldv: bool = False
 
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # Health Data Sources
@@ -84,8 +88,10 @@ class Settings(BaseSettings):
     # Google (OAuth for Calendar, Gmail, etc.)
     google_client_id: str = ""
     google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8000/api/collectors/google/callback"
     google_calendar_ids: str = "primary"  # Comma-separated calendar IDs
     google_geocoding_api_key: str = ""  # For location enrichment
+    google_sync_interval: int = 5  # minutes
 
     # Notion
     notion_api_key: str = ""
@@ -94,6 +100,12 @@ class Settings(BaseSettings):
     # Spotify
     spotify_client_id: str = ""
     spotify_client_secret: str = ""
+    spotify_redirect_uri: str = "http://localhost:8000/api/collectors/spotify/callback"
+    spotify_sync_interval: int = 5  # minutes
+
+    # tldv (meeting recordings & transcripts)
+    tldv_api_key: str = ""
+    tldv_sync_interval: int = 30  # minutes
 
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     # AI & Analysis

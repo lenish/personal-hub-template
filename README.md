@@ -2,7 +2,7 @@
 
 **A self-hosted personal data hub** - Collect, aggregate, and visualize your personal data from multiple sources in one unified dashboard.
 
-🏗️ **Status**: Active Development - v0.1.0 Template Release
+🏗️ **Status**: Active Development - v0.3.0 Template Release (~70% complete)
 
 ## 🎯 What is This?
 
@@ -19,16 +19,15 @@ Personal Hub is an open-source template for building your own personal data plat
 ### 📊 Data Sources (All Optional & Modular)
 
 - **Health & Fitness**
-  - 🏃 Whoop (recovery, sleep, workouts)
+  - 🏃 Whoop (recovery, sleep, workouts, strain)
   - 🍎 Apple Health (26+ metrics via webhook)
-  - ⚖️ Withings (body composition, blood pressure)
+  - ⚖️ Withings (body composition, blood pressure, heart rate)
 
-- **Communication**
-  - 💬 Slack (message history, channels)
-  - ✈️ Telegram (messages, groups)
+- **Music & Entertainment**
+  - 🎵 Spotify (listening history, playlists, tracks)
 
 - **Productivity**
-  - 📅 Google Calendar (events, meetings)
+  - 📅 Google Calendar (events, meetings, multi-account support)
 
 ### 🔐 Authentication
 
@@ -36,12 +35,22 @@ Personal Hub is an open-source template for building your own personal data plat
 - Google OAuth (default)
 - Extensible to GitHub, Apple, etc.
 
-### 🎨 Dashboard
+### 🎨 Dashboard & UI
 
-- Next.js 15 (App Router)
-- Server Components + Client Islands
-- Radix UI + Tailwind CSS 4
-- Responsive design
+- **Next.js 15** with App Router
+- **Server Components** + Client Islands pattern
+- **shadcn/ui** components (Radix UI primitives)
+- **Tailwind CSS v4** for styling
+- **Responsive design** - mobile, tablet, desktop
+- **Dark mode** support (system preference)
+- **Real-time sync status** for all data sources
+
+**Pages included:**
+- Dashboard (health summary cards + sync status)
+- Health (recovery, sleep, workout tables)
+- Music (recent listens, playlists)
+- Calendar (month view, event list, timezone selector)
+- Settings (account info, OAuth connections, sync status)
 
 ### 🚀 Deployment
 
@@ -227,15 +236,26 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## 🗺️ Roadmap
 
+**v0.3.0 (Current)** - ~70% Complete
 - [x] Core template structure
 - [x] Docker Compose setup
-- [x] Health data collectors
-- [x] Basic dashboard
+- [x] 5 data collectors (Whoop, Apple Health, Withings, Spotify, Google Calendar)
+- [x] Full-featured dashboard with 5 pages
+- [x] OAuth flows for all sources
+- [x] Auto-sync scheduler (APScheduler)
+- [x] Database schema (data_items, sync_state)
+- [ ] Verification & testing
+
+**v0.4.0 (Next)**
 - [ ] Data export/backup tools
-- [ ] More data sources (Spotify, Strava, etc.)
-- [ ] Mobile app
-- [ ] AI insights & analytics
-- [ ] Multi-user support
+- [ ] Analytics dashboard (charts, trends)
+- [ ] Search & filtering UI
+
+**Future**
+- [ ] More data sources (Strava, GitHub, Twitter)
+- [ ] Mobile app (React Native)
+- [ ] AI insights & recommendations
+- [ ] Multi-user support (optional)
 
 ---
 

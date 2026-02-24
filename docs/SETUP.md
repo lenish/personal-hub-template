@@ -50,15 +50,18 @@ nano .env
 
 **Required settings:**
 ```bash
-# Generate random secrets
+# Generate random secrets (or use init.sh to auto-generate)
 AUTH_SECRET=$(openssl rand -base64 32)
 POSTGRES_PASSWORD=$(openssl rand -base64 16)
 API_KEY=$(openssl rand -base64 32)
+HEALTH_API_TOKEN=$(openssl rand -base64 32)
 
 # Add to .env
 AUTH_SECRET=your_generated_secret
 POSTGRES_PASSWORD=your_generated_password
-api_key=your_generated_api_key
+API_KEY=your_generated_api_key
+ALLOWED_EMAIL=your@email.com  # Email address allowed to access the hub
+TIMEZONE=UTC  # Or your timezone (e.g., America/New_York, Asia/Seoul)
 ```
 
 ### Step 2: OAuth Providers (Optional)
@@ -87,12 +90,15 @@ ENABLE_WHOOP=true
 ENABLE_APPLE_HEALTH=true
 ENABLE_WITHINGS=false
 
-# Enable communication
-ENABLE_SLACK=true
-ENABLE_TELEGRAM=false
+# Enable music & entertainment
+ENABLE_SPOTIFY=true
 
 # Enable productivity
 ENABLE_GOOGLE_CALENDAR=true
+
+# Communication (optional, legacy)
+ENABLE_SLACK=false
+ENABLE_TELEGRAM=false
 ```
 
 See [DATA_SOURCES.md](DATA_SOURCES.md) for setup instructions for each source.
@@ -182,24 +188,18 @@ CLOUDFLARE_TUNNEL_TOKEN=your_tunnel_token
 docker-compose --profile cloudflare up -d
 ```
 
-## Database Migrations
+## Database Setup
 
 ### Initial Setup
 
-Tables are created automatically on first startup via Docker entrypoint.
+Tables are created automatically on first startup via `docker/init-db.sql`.
 
-### Manual Migration (if using Alembic)
+The initialization script creates:
+- `data_items` table (stores all data from sources)
+- `sync_state` table (tracks sync status)
+- Indexes for performance
 
-```bash
-# Generate migration
-docker-compose exec api alembic revision --autogenerate -m "description"
-
-# Apply migration
-docker-compose exec api alembic upgrade head
-
-# Rollback
-docker-compose exec api alembic downgrade -1
-```
+No manual migration needed for initial setup.
 
 ## Troubleshooting
 
