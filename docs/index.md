@@ -48,7 +48,7 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/personal-hub-template.git
+git clone https://github.com/lenish/personal-hub-template.git
 cd personal-hub-template
 
 # 2. Run setup script

@@ -13,7 +13,7 @@ Complete setup guide from zero to running Personal Hub.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/personal-hub-template.git
+git clone https://github.com/lenish/personal-hub-template.git
 cd personal-hub-template
 ```
 
@@ -150,7 +150,7 @@ Expected output:
 
 ```bash
 # 1. Clone on server
-git clone https://github.com/yourusername/personal-hub-template.git
+git clone https://github.com/lenish/personal-hub-template.git
 cd personal-hub-template
 
 # 2. Configure environment
