@@ -4,6 +4,8 @@
 
 🏗️ **Status**: Active Development - v0.3.0 Template Release (~70% complete)
 
+📚 **[View Documentation](https://docs.ryankim.link/)** | 🎯 [Quick Start](#-quick-start) | 🏗️ [Architecture](https://docs.ryankim.link/ARCHITECTURE/)
+
 ## 🎯 What is This?
 
 Personal Hub is an open-source template for building your own personal data platform. It helps you:
@@ -71,7 +73,7 @@ Personal Hub is an open-source template for building your own personal data plat
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/personal-hub-template.git
+git clone https://github.com/lenish/personal-hub-template.git
 cd personal-hub-template
 
 # 2. Run setup script
@@ -231,8 +233,8 @@ MIT License - See [LICENSE](LICENSE) for details.
 ## 🆘 Support
 
 - **Documentation**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/personal-hub-template/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/personal-hub-template/discussions)
+- **Issues**: [GitHub Issues](https://github.com/lenish/personal-hub-template/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/lenish/personal-hub-template/discussions)
 
 ## 🗺️ Roadmap
 
